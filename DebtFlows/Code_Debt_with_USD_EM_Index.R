@@ -60,7 +60,6 @@ colnames(overall_merged_main) <- c("period","Short Term W Index", "Medium Term W
 
 temp <- melt(overall_merged_main, id="period")
 
-string <- "2014-07-01 08:00:00"
 temp$new_period <- as.POSIXct(temp$period, format="%Y-%m-%d %H:%M:%S", tz="UTC")
 
 figure_1 <- ggplot(temp, aes(x=new_period, y=value, colour=variable)) + 

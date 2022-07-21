@@ -7,7 +7,7 @@ graphics.off()
 library(frequencyConnectedness)
 library(parallel)
 library(zoo)
-data <- read.csv("DebtFlows_Short_Without_USD_EM_Index.csv",header=T,sep=",",stringsAsFactors = FALSE)
+data <- read.csv("DebtFlows/DebtFlows_Short_Without_USD_EM_Index.csv",header=T,sep=",",stringsAsFactors = FALSE)
 data.z <- read.zoo(data, format = "%d/%m/%Y")
 nCores <- detectCores() - 1
 cl <- makeCluster(nCores)
