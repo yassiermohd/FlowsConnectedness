@@ -16,7 +16,8 @@ list_files <- c("Y_EquityIndex.RData","BK_EquityIndex.RData","Y_Equity.RData","B
 list_variable <- c("EquityIndex","Equity","DebtIndex","Debt")
 nominal_index <- read_csv(file = "RawFiles/NominalIndex.csv",na= "#N/A")
 nominal_index$period <- as.Date(as.POSIXct(nominal_index$period,format='%d/%m/%Y'))
-temp <- diff(log(nominal_index$nominal_index), lag=1)
+temp <- diff(log(nominal_index$nominal_index), lag=1)*100
+temp
 nominal_index$log_index <- append(NA, temp)
 
 
@@ -37,15 +38,18 @@ for (var in list_variable){
       temp <- overall(dataname)
     }
     if (type==1) {
+      temp <- net(dataname)
+    }
+    if (type==2) {
       temp <- overall(dataname)[[num]]
     }
-    if (type==2){
+    if (type==3){
       temp <- net(dataname)[[num]]
     }
     temp_df <- data.frame(temp)
     temp_new <- cbind(period = rownames(temp_df), temp_df)
     rownames(temp_new) <- 1:nrow(temp_new)
-    if (type==2){
+    if (type==3 | type==1){
       temp_new <- temp_new %>% pivot_longer(!period, names_to = "country", values_to = "Spill")
     }
     return(temp_new)
@@ -53,19 +57,20 @@ for (var in list_variable){
   
   
   overall_DY <- create_subset(0,sp,0)
-  group_1_overall <- create_subset(1,spbk,1)
-  group_2_overall <- create_subset(2,spbk,1)
-  group_3_overall <- create_subset(3,spbk,1)
-  net_1_overall <- create_subset(1,spbk,2)
-  net_2_overall <- create_subset(2,spbk,2)
-  net_3_overall <- create_subset(3,spbk,2)
+  net_DY <- create_subset(0,sp,1)
+  group_1_overall <- create_subset(1,spbk,2)
+  group_2_overall <- create_subset(2,spbk,2)
+  group_3_overall <- create_subset(3,spbk,2)
+  net_1_overall <- create_subset(1,spbk,3)
+  net_2_overall <- create_subset(2,spbk,3)
+  net_3_overall <- create_subset(3,spbk,3)
   
-  
-  net_list <- list(net_1_overall,net_2_overall, net_3_overall)
+  print("HEllo")
+  net_list <- list(net_1_overall,net_2_overall, net_3_overall, net_DY)
   net_list <- net_list %>%  reduce(inner_join, by=c("period","country"))
   df_list <- list(overall_DY,group_1_overall,group_2_overall,group_3_overall, net_list)
   main <- df_list %>%  reduce(inner_join, by="period")
-  colnames(main) <- c("period","DY", "ST_Decomp", "MT_Decomp", "LT_Decomp","Country","ST_Spill","MT_Spill","LT_Spill")
+  colnames(main) <- c("period","DY", "ST_Decomp", "MT_Decomp", "LT_Decomp","Country","ST_Spill","MT_Spill","LT_Spill", "DY_Spill")
   main$period <- as.Date(main$period)
   main$type <- list_variable[j]
   j=j+1
